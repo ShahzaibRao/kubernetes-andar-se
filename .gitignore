@@ -1,0 +1,7 @@
+# Lesson commands chalate waqt download hone wali cheezein (repo mein nahi aani chahiye)
+*.tar.gz
+*.tgz
+*.tar
+bin/
+# OS junk
+.DS_Store
