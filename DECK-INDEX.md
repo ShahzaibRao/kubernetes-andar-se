@@ -1,6 +1,11 @@
 # Phase 1 — Deck Index (13 lessons → 13 decks)
 ## Kubernetes Andar Se — Chapter 0 / Bootstrap
 
+**Format (2026-11-17, Rao's call — Design A / Split Console):** decks ab
+`k8s-present` runner ke `deck.md` format mein hain (`presenter/README.md`
+dekho). Purani `slides.md` files abhi repo mein hain, lekin nayi recording
+Design A se hogi. Lesson 03 ka `deck.md` pehla converted deck hai.
+
 **Rule:** 1 lesson = 1 deck = 1 video (agar Rao module-wise chahe to 4 decks mein merge karna aasan hai — deck files ko `cat` karke jor do, `---` separator pehle se hai).
 
 **Status:** Lesson 01 aur 03 ke decks poore hain (test karne ke liye). Baaki decks `just start <lesson>` se banao, phir neeche wali script se bharo.
