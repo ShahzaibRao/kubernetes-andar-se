@@ -9,10 +9,6 @@ paging: Slide %d / %d
 
 > Kubernetes ko andar se samjho — ek ek component haath se bana kar
 
-```bash
-echo "Kubernetes Andar Se" | figlet -f small -w 90
-```
-
 ---
 
 ## Ye Series Kis Ke Liye Hai?
