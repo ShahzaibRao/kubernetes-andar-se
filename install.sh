@@ -77,3 +77,12 @@ fi
 say "Sab ho gaya. Check karo:"
 say "  just --version && slides --help | head -3 && tmux -V"
 say "PATH mein ${BIN_DIR} aur \$(go env GOPATH)/bin hone chahiye."
+
+# --- PATH fix (2026-11-17: Rao ki machine par ~/go/bin PATH mein nahi tha) ---
+# slides ~/go/bin mein install hoti hai, just ~/.local/bin mein — dono ko
+# ~/.bashrc mein daal do taake har nayi terminal mein milen.
+for line in 'export PATH="$HOME/go/bin:$PATH"' 'export PATH="$HOME/.local/bin:$PATH"'; do
+  grep -qxF "$line" "${HOME}/.bashrc" 2>/dev/null || echo "$line" >> "${HOME}/.bashrc"
+done
+export PATH="${HOME}/go/bin:${BIN_DIR}:${PATH}"
+say "PATH fix ho gaya (~/.bashrc mein add kar diya). Nayi terminal kholo ya chalao: source ~/.bashrc"
