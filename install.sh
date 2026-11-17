@@ -78,6 +78,16 @@ say "Sab ho gaya. Check karo:"
 say "  just --version && slides --help | head -3 && tmux -V"
 say "PATH mein ${BIN_DIR} aur \$(go env GOPATH)/bin hone chahiye."
 
+# --- k8s-present (Design A runner, 2026-11-17) ---
+# Go + Bubble Tea TUI — split console, per-command run, pty (progress bars).
+if [ -d ./presenter ] && command -v go >/dev/null 2>&1; then
+  if (cd ./presenter && go build -o "${BIN_DIR}/k8s-present" .); then
+    say "k8s-present build ho gaya: ${BIN_DIR}/k8s-present"
+  else
+    echo "k8s-present build fail hua — baad mein 'just build-presenter' se try karo"
+  fi
+fi
+
 # --- PATH fix (2026-11-17: Rao ki machine par ~/go/bin PATH mein nahi tha) ---
 # slides ~/go/bin mein install hoti hai, just ~/.local/bin mein — dono ko
 # ~/.bashrc mein daal do taake har nayi terminal mein milen.
