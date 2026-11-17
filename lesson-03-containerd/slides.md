@@ -9,10 +9,6 @@ paging: Slide %d / %d
 
 > Worker node ka pehla component: container ko chalane wala engine
 
-```bash
-echo "containerd" | figlet -f small -w 90
-```
-
 ---
 
 ## containerd Kya Hai?
@@ -23,7 +19,7 @@ echo "containerd" | figlet -f small -w 90
 - kubelet containerd se CRI (Container Runtime Interface) se baat karta hai
 - `nerdctl` containerd ka CLI hai — Docker jaisa experience, containerd ke upar
 
-```
+```text
 kubelet ──▶ CRI ──▶ containerd ──▶ containerd-shim ──▶ runc ──▶ container
               │              │
               │              └── image pull + store
@@ -51,6 +47,10 @@ curl -fsSLO https://github.com/containerd/containerd/releases/download/v2.2.1/co
 
 ---
 
+## Step 1 — containerd Install Karo
+
+> Tarball se binary nikalo aur `/usr/local/bin` mein daalo
+
 ```bash
 tar xzvof containerd-2.2.1-linux-amd64.tar.gz
 sudo install -m 755 bin/* /usr/local/bin
@@ -58,12 +58,31 @@ sudo install -m 755 bin/* /usr/local/bin
 
 ---
 
+## Step 2 — Config File Banao
+
+> Default config banao — output ko chhupao, warna poora TOML screen bhar de ga
+
 ```bash
 sudo mkdir -p /etc/containerd
-containerd config default | sudo tee /etc/containerd/config.toml
+containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
+wc -l /etc/containerd/config.toml
 ```
 
 ---
+
+## Step 3 — systemd Unit File Lagao
+
+> Tarball mein service file NAHI hoti — is ke baghair `systemctl` containerd ko dhoond hi nahi sakta
+
+```bash
+sudo wget -P /etc/systemd/system "https://raw.githubusercontent.com/containerd/containerd/v2.2.1/containerd.service"
+```
+
+---
+
+## Step 4 — containerd Service Start Karo
+
+> Ab systemd ko unit file ka pata hai — service enable aur start karo
 
 ```bash
 sudo systemctl daemon-reload
@@ -73,7 +92,12 @@ sudo systemctl status containerd --no-pager
 
 ---
 
+## Step 5 — Pehla Container Chalao (FAIL Hoga)
+
+> Pehle image pull karo — `ctr run` khud pull NAHI karta
+
 ```bash
+sudo ctr images pull ghcr.io/sagikazarmark/docker-hello-world:latest
 sudo ctr run --rm ghcr.io/sagikazarmark/docker-hello-world:latest hello
 ```
 
@@ -86,6 +110,7 @@ sudo ctr run --rm ghcr.io/sagikazarmark/docker-hello-world:latest hello
 - containerd ne container banane ki koshish ki
 - Process start karne ke liye us ko **runc** chahiye — jo hai hi nahi
 - containerd manager hai, executor nahi — yehi farq hai jo log bhool jate hain
+- **Note:** agar tumhari machine par runc pehle se install hai to Step 5 fail nahi hoga — ye theek hai, fail sirf fresh machine par dikhta hai
 
 ---
 
@@ -105,10 +130,14 @@ runc --version
 
 ```bash
 sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
-grep -A2 'runc.options' /etc/containerd/config.toml
+grep 'SystemdCgroup' /etc/containerd/config.toml
 ```
 
 ---
+
+## Step 6 — containerd Restart Karo
+
+> Config badli hai — service restart karo aur check karo
 
 ```bash
 sudo systemctl restart containerd
@@ -129,6 +158,10 @@ sudo install -m 755 nerdctl /usr/local/bin
 
 ---
 
+## Step 7 — CNI Plugins Install Karo
+
+> Plugins `/opt/cni/bin` mein aate hain — `bridge`, `host-local`, `loopback` sab yahin hote hain
+
 ```bash
 curl -fsSLO https://github.com/containernetworking/plugins/releases/download/v1.9.0/cni-plugins-linux-amd64-v1.9.0.tgz
 sudo mkdir -p /opt/cni/bin
@@ -146,12 +179,20 @@ sudo nerdctl run -d --name podinfo -p 9898:9898 ghcr.io/stefanprodan/podinfo:lat
 
 ---
 
+## Check — podinfo Ka IP Nikalo
+
+> Container ka IP lo aur us par curl karo — jawab aana chahiye
+
 ```bash
 PODINFO_IP=$(sudo nerdctl inspect --format '{{ .NetworkSettings.IPAddress }}' podinfo)
 curl -f "http://${PODINFO_IP}:9898"
 ```
 
 ---
+
+## Check — Container List Dekho
+
+> `ps` se dekho podinfo Up hai ya nahi
 
 ```bash
 sudo nerdctl ps
