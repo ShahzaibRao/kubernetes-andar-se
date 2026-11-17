@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kubernetes Andar Se — Slide UI Designs (3 options)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0b0e14; color: #d6dae4; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; line-height: 1.55; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 28px 20px 60px; }
+  h1 { color: #f8f8f2; font-size: 28px; margin: 0 0 6px; }
+  h2 { color: #9fc; font-size: 22px; margin: 44px 0 8px; }
+  h3 { color: #8be9fd; font-size: 16px; margin: 18px 0 6px; }
+  p, li { font-size: 15px; }
+  .sub { color: #9aa3b2; margin: 0 0 18px; }
+  .note { background: #171c28; border: 1px solid #2b3245; border-left: 4px solid #f1fa8c; border-radius: 8px; padding: 12px 16px; margin: 16px 0; }
+  .note b { color: #f1fa8c; }
+  .rec { background: #12261c; border: 1px solid #2f6b4f; border-left: 4px solid #50fa7b; border-radius: 8px; padding: 14px 16px; margin: 20px 0; }
+  .rec b { color: #50fa7b; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-left: 8px; vertical-align: middle; }
+  .tag.rec-t { background: #50fa7b; color: #06210f; }
+  .tag.zero { background: #8be9fd; color: #06222b; }
+  .tag.custom { background: #ffb86c; color: #2b1700; }
+  /* terminal window */
+  .term { background: #11141c; border: 1px solid #333a4d; border-radius: 10px; overflow: hidden; margin: 14px 0 8px; box-shadow: 0 8px 30px rgba(0,0,0,.45); font-family: "Cascadia Code", "JetBrains Mono", Consolas, monospace; font-size: 13.5px; line-height: 1.5; }
+  .term-bar { background: #1c2130; padding: 8px 12px; display: flex; gap: 7px; align-items: center; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .r { background: #ff5f56; } .y { background: #ffbd2e; } .g { background: #27c93f; }
+  .term-title { color: #8b93a7; font-size: 12px; margin-left: 6px; }
+  .term-body { padding: 14px 16px 16px; white-space: pre-wrap; word-wrap: break-word; }
+  .hd { color: #9fc; font-weight: 700; }
+  .hd2 { color: #f1fa8c; font-weight: 700; }
+  .dim { color: #7d8698; }
+  .cmd { color: #f8f8f2; background: #1e2436; border-radius: 4px; padding: 0 4px; }
+  .out { color: #a8d8a8; }
+  .err { color: #ff7b72; }
+  .cyan { color: #8be9fd; }
+  .pink { color: #ff79c6; }
+  .yel { color: #f1fa8c; }
+  .grn { color: #50fa7b; }
+  .bar { color: #50fa7b; }
+  .bar-empty { color: #3a4157; }
+  .sel { background: #2b3a2f; color: #f8f8f2; }
+  .keys { background: #171c28; border: 1px solid #2b3245; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #9aa3b2; margin: 0 0 6px; }
+  .keys b { color: #d6dae4; }
+  kbd { background: #2b3245; border: 1px solid #4a5468; border-bottom-width: 2px; border-radius: 5px; padding: 1px 7px; font-family: inherit; color: #f8f8f2; font-size: 12.5px; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #2b3245; vertical-align: top; }
+  th { color: #9fc; }
+  .yes { color: #50fa7b; font-weight: 700; } .no { color: #ff7b72; font-weight: 700; } .part { color: #f1fa8c; font-weight: 700; }
+  .cap { color: #9aa3b2; font-size: 13px; margin: 0 0 4px; }
+  .pick { background: #171c28; border: 1px solid #2b3245; border-radius: 8px; padding: 14px 16px; }
+  .pick ol { margin: 6px 0 0; padding-left: 22px; }
+  footer { color: #7d8698; font-size: 13px; margin-top: 40px; border-top: 1px solid #2b3245; padding-top: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Slide UI — 3 Designs</h1>
+<p class="sub">Kubernetes Andar Se · Lesson 03 (containerd) · Step 5 ko example bana kar — teeno designs mein <b>wahi step</b> dikhaya hai taake compare karna aasan ho. Har design mein ye sab hai: heading, definition/content, commands, aur un ka output — alag hissa.</p>
+
+<div class="note"><b>Tumhari shikayat ka asal jawab, UI se pehle:</b> download ke waqt progress bar nahi aai — ye UI ki ghalti nahi, command ki hai. <span class="cmd">curl -fsSLO</span> silent hota hai. Teeno designs mein command ye hogi: <span class="cmd">curl -# -fsSLO …</span> (<span class="cmd">-#</span> = progress bar dikhao). Aur “Ctrl+E dabate hi 2–3–4 commands sab chal jati hain” — is liye har design ka usool hai: <b>ek command = ek alag step</b>, kabhi ek block mein 2 commands nahi.</div>
+
+<h2>Option 1 — Presenterm (polished) <span class="tag rec-t">MERI RECOMMENDATION</span></h2>
+<p>Piotr ka <b>current</b> stack (presenterm + just + tmux). Markdown decks waisi hi rehti hain, sirf tool badalta hai. Is mein woh sab kuch built-in hai jo tum ne manga: asli progress bar, columns (left: samjhana, right: output), theme/margins, aur output apni jagah par.</p>
+
+<div class="term">
+  <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-title">presenterm — lesson-03-containerd.md</span></div>
+  <div class="term-body"><span class="hd">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="hd">  containerd — Step 5: Pehla Container (FAIL hoga)</span>
+<span class="dim">  Lesson 03 · containerd · Kubernetes Andar Se</span>
+<span class="hd">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+<span class="yel">Kyun fail hoga?</span>  <span class="dim">containerd manager hai, executor nahi —</span>
+<span class="dim">process start karne ke liye us ko runc chahiye, jo abhi hai hi nahi.</span>
+
+<span class="cyan">┌─ COMMAND ────────────────────────────────┐</span>
+<span class="cyan">│</span> <span class="dim">$</span> <span class="cmd">sudo ctr images pull ghcr.io/sagikazarmark/docker-hello-world:latest</span> <span class="cyan">│</span>
+<span class="cyan">│</span> <span class="dim">  ← Ctrl+E dabao, sirf yehi ek command chalegi</span>              <span class="cyan">│</span>
+<span class="cyan">└────────────────────────────────────────────┘</span>
+
+<span class="cyan">┌─ OUTPUT ─────────────────────────────────┐</span>
+<span class="cyan">│</span> <span class="out">ghcr.io/sagikazarmark/docker-hello-world:latest:</span>   <span class="cyan">│</span>
+<span class="cyan">│</span> <span class="out">  resolved       |++++++++++++++++++++++++++++++++|</span>    <span class="cyan">│</span>
+<span class="cyan">│</span> <span class="grn">  ✓ image pull ho gayi — ab run karo</span>                 <span class="cyan">│</span>
+<span class="cyan">└────────────────────────────────────────────┘</span>
+
+<span class="dim">  Agla step: isi slide par dusra block — ctr run → error dikhe ga</span>
+
+<span class="bar">██████████████░░░░░░░░░░░░</span> <span class="dim">Slide 5 / 19 · containerd</span></div>
+</div>
+<div class="keys"><kbd>Ctrl</kbd>+<kbd>E</kbd> <b>ek block chalao</b> &nbsp;·&nbsp; <kbd>→</kbd> agli slide &nbsp;·&nbsp; <kbd>←</kbd> pichli &nbsp;·&nbsp; <kbd>5</kbd><kbd>G</kbd> slide 5 par jao &nbsp;·&nbsp; <kbd>q</kbd> bahar</div>
+<p class="cap"><b>Kaise kaam kare ga:</b> har command apna <span class="cmd">```bash +exec</span> block — Ctrl+E sirf usi block ko chalata hai, output usi ki box mein aata hai (aur wapas aane par bhi rehta hai). Output ko <span class="cmd">+id</span> / <span class="cmd">snippet_output</span> se doosre column ya agli slide mein bhi rakh sakte hain. Footer mein asli progress bar + slide number theme se aata hai. <b>Important correction:</b> pehle ye kaha tha ke presenterm mein slide aate hi command chal jati hai — ye sirf <span class="cmd">+auto_exec</span> mein hota hai; <span class="cmd">+exec</span> mein execution explicit hai, Ctrl+E dabane par hi chalti hai, is liye certs dobara banne ka khatra nahi.</p>
+<p><b>Cost:</b> presenterm install (cargo, ek binary) + decks ko slides-format se presenterm-format mein badalna (13 decks, mostly headings/columns). <b>Limit:</b> ↑↓ se command-list mein ghoom kar Enter se chalana — ye presenterm mein nahi hai; per-command control Ctrl+E + alag block se milta hai, arrow+Enter wali list nahi.</p>
+
+<h2>Option 2 — Slides, dobara banaya hua (zero naya tool) <span class="tag zero">SAB SE SASTA</span></h2>
+<p>Wahi <b>maaslalani/slides</b> jo abhi installed hai — koi naya install nahi, koi naya seekhna nahi. Sirf deck ka structure badalta hai: har command apni slide, har slide par heading, output usi slide ke neeche.</p>
+
+<div class="term">
+  <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-title">slides — lesson-03-containerd/slides.md</span></div>
+  <div class="term-body"><span class="hd2">▓▓▓ Step 5 — Pehla Container Chalao (FAIL Hoga)</span>
+
+<span class="dim">Pehle image pull karo — ctr run khud pull NAHI karta.</span>
+
+<span class="dim">$</span> <span class="cmd">sudo ctr images pull ghcr.io/sagikazarmark/docker-hello-world:latest</span>
+
+<span class="dim">── Ctrl+E ke baad output yahin neeche aaye ga ──</span>
+<span class="out">ghcr.io/sagikazarmark/docker-hello-world:latest:</span>
+<span class="out">  resolved       |++++++++++++++++++++++++++++++++|</span>
+<span class="grn">✓ image pull ho gayi</span>
+
+<span class="dim">──────────────────────────────────────────────────────────</span>
+<span class="dim">Slide 5 / 19</span></div>
+</div>
+<div class="keys"><kbd>Ctrl</kbd>+<kbd>E</kbd> <b>block chalao</b> &nbsp;·&nbsp; <kbd>Space</kbd> / <kbd>→</kbd> agli slide &nbsp;·&nbsp; <kbd>←</kbd> pichli &nbsp;·&nbsp; <kbd>5</kbd><kbd>G</kbd> slide 5 &nbsp;·&nbsp; <kbd>q</kbd> bahar</div>
+<p class="cap"><b>Kaise kaam kare ga:</b> 1 command = 1 slide (pehle se rule hai, ab sakhti se), har slide par heading lazmi, output slide ke end par. Paging <span class="cmd">Slide %d / %d</span> pehle se theme mein hai. <b>Limit (imandari se):</b> output ki apni fixed jagah nahi — woh slide ke neeche chipakta hai aur lamba output content ko dhakel deta hai; asli progress bar nahi, sirf “Slide 5 / 19” text; columns nahi; look slides ke theme tak mehdood hai — yehi woh look hai jo tumhe “bht buri” lagi thi, structure theek karne se behtar hogi, magar Option 1 jaisi polished nahi hogi.</p>
+
+<h2>Option 3 — Command Runner (tmux + just) <span class="tag custom">TUMHARI SPEC, HUBAHU</span></h2>
+<p>Ye koi slide tool nahi — ek chhota <b>runner</b> hai jo tumhari baat ko lafz-ba-lafz poora karta hai: command list mein ↑↓ se ghoomo, Enter dabao, <b>sirf wohi ek command</b> chale, output apne pane mein aaye. tmux ke 3 panes + just + ek chhoti navigator script.</p>
+
+<div class="term">
+  <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-title">tmux — lesson-03 · Step 5 (runner)</span></div>
+  <div class="term-body"><span class="hd"> Kubernetes Andar Se · Lesson 03 — containerd · Step 5/7 </span>
+<span class="bar">████████████████████░░░░░░░░░░</span> <span class="dim">Step 5 / 7 · Slide 5 / 19</span>
+<span class="dim">──────────────────────────────────────────────────────────</span>
+<span class="yel">Pehla Container (FAIL hoga) — ctr run khud pull NAHI karta</span>
+
+<span class="cyan">COMMANDS  (↑↓ se chuno, Enter se chalao — sirf selected wali)</span>
+<span class="dim">  ✓ 1. curl -# -fsSLO …/containerd-2.2.1-linux-amd64.tar.gz</span>
+<span class="dim">  ✓ 2. sudo ctr images pull ghcr.io/…/docker-hello-world:latest</span>
+<span class="sel">▶ 3. sudo ctr run --rm ghcr.io/…/docker-hello-world:latest hello</span>
+<span class="dim">  · 4. runc --version        (agla step — abhi locked)</span>
+
+<span class="cyan">OUTPUT — command 3 ka result (live shell)</span>
+<span class="dim">$ sudo ctr run --rm ghcr.io/…/docker-hello-world:latest hello</span>
+<span class="err">ctr: exec: "runc": executable file not found in $PATH</span>
+<span class="err">  → matlab: containerd ko process start karne ke liye runc chahiye</span>
+
+<span class="dim">──────────────────────────────────────────────────────────</span>
+<span class="dim"> ↑↓ select · Enter run · n next step · p prev · q quit</span></div>
+</div>
+<div class="keys"><kbd>↑</kbd><kbd>↓</kbd> <b>command chuno</b> &nbsp;·&nbsp; <kbd>Enter</kbd> <b>sirf wohi chalao</b> &nbsp;·&nbsp; <kbd>n</kbd> agla step &nbsp;·&nbsp; <kbd>q</kbd> bahar</div>
+<p class="cap"><b>Kaise kaam kare ga:</b> upar header + progress, beech mein command list, neeche asal live shell ka output — teeno ek hi screen par, hamesha. Navigator script selected command ko tmux ke shell pane mein bhejta hai, is liye <span class="cmd">cd</span>, env vars aur <span class="cmd">sudo</span> sab waisi hi kaam karte hain jaisi terminal mein. Har command ke saath ✓/✗ status aur us ka output save rehta hai, wapas jaane par bhi. <b>Cost:</b> ye banana pare ga (navigator script + per-lesson command lists + lab VM par test) — tayyar tool nahi, is liye recording se pehle ek poori lesson is par chala kar dekhni pare gi. <b>Faida:</b> tumhari spec ka har lafz poora — aur baad mein isi runner mein presenterm/slides wali heading+definition bhi aa sakti hai.</p>
+
+<h2>Compare — ek nazar mein</h2>
+<table>
+  <tr><th></th><th>1 · Presenterm</th><th>2 · Slides (dobara)</th><th>3 · Runner (tmux)</th></tr>
+  <tr><td>Heading har slide par</td><td class="yes">✓</td><td class="yes">✓ (rule se)</td><td class="yes">✓</td></tr>
+  <tr><td>Definition / content + command ek saath</td><td class="yes">✓ (columns)</td><td class="part">~ (ek ke neeche ek)</td><td class="yes">✓ (list + notes)</td></tr>
+  <tr><td>Output ki apni fixed jagah</td><td class="yes">✓ (output box / column)</td><td class="no">✗ (slide ke end par chipakta hai)</td><td class="yes">✓ (apna pane)</td></tr>
+  <tr><td>Ek command, ek dafa, tumhare dabane par</td><td class="yes">✓ Ctrl+E, explicit</td><td class="yes">✓ Ctrl+E, explicit</td><td class="yes">✓ Enter, sirf selected</td></tr>
+  <tr><td>↑↓ se command chuno + Enter</td><td class="no">✗ (nahi hai)</td><td class="no">✗ (nahi hai)</td><td class="yes">✓ (yehi is ka kaam hai)</td></tr>
+  <tr><td>Progress bar</td><td class="yes">✓ built-in footer</td><td class="part">~ sirf “Slide 5 / 19” text</td><td class="yes">✓ header mein bar</td></tr>
+  <tr><td>Recording/streaming look</td><td class="yes">Best — true color, themes</td><td class="part">Theek — magar mehdood</td><td class="yes">Best — sab kuch ek screen par</td></tr>
+  <tr><td>Banane / badalne ki cost</td><td class="part">Medium — 13 decks convert</td><td class="yes">Sab se kam — structure hi badlo</td><td class="no">Zyada — naya runner + test</td></tr>
+  <tr><td>Stateful lab commands (certs dobara na banein)</td><td class="yes">✓ +exec explicit hai</td><td class="yes">✓ Ctrl+E explicit hai</td><td class="yes">✓ Enter explicit hai</td></tr>
+</table>
+
+<div class="rec"><b>Meri suggestion:</b> <b>Option 1 (Presenterm)</b> se shuru karo — ye Piotr ka current stack hai, tumhari sari shikayatein (heading, output ki jagah, progress bar, look) hal karta hai, aur decks Markdown hi rehte hain. <b>Option 3 (Runner)</b> ko Phase 2 rakho — agar presenterm par record karte hue bhi ↑↓+Enter wali list ki kami mehsoos ho to runner bana lein ge, us waqt decks ka content tayyar hoga. Option 2 sirf fallback hai agar tum koi naya tool install nahi karna chahte.</div>
+
+<div class="pick">
+<b>Tum batao — number se:</b>
+<ol>
+  <li><b>Presenterm</b> — main Lesson 03 ka deck presenterm-format mein bana kar lab VM par test karun</li>
+  <li><b>Slides (dobara)</b> — koi naya tool nahi, sirf decks ka structure theek karun</li>
+  <li><b>Runner (tmux)</b> — pehle runner banaun, phir us par Lesson 03 chala kar dikhaun</li>
+  <li><b>Mix:</b> Presenterm se recording shuru, Runner baad mein</li>
+</ol>
+<p style="margin-bottom:0">Ya kisi design mein kuch badalna ho — rang, layout, keys — to woh bhi bata do, pehle design hi final karte hain, phir decks banenge.</p>
+</div>
+
+<footer>Sources: presenterm docs — execution (+exec, Ctrl+E explicit, stateful output, snippet_output placement), layout (column_layout), themes (footer: template {current_slide}/{total_slides} aur progress_bar style) — mfontanini.github.io/presenterm · slides README (Ctrl+E poora block chalata hai, output slide ke end par) · apna lab run 2026-11-17 (Lesson 03, 19 slides) aur tumhara feedback (06:29 PKT, 2026-11-17). File: ~/workspace/kubernetes-teaching/slides/ui-designs.html</footer>
+
+</div>
+</body>
+</html>
