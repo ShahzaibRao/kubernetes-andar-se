@@ -32,6 +32,14 @@ start lesson:
 present lesson:
   @cd {{lesson}} && slides slides.md
 
+# Design A runner build karo (Go + Bubble Tea TUI)
+build-presenter:
+  cd presenter && go build -o "$HOME/.local/bin/k8s-present" .
+
+# Design A runner se lesson chalao (deck.md format)
+present-a lesson:
+  @"$HOME/.local/bin/k8s-present" {{lesson}}/deck.md
+
 # PlantUML diagram ko ASCII mein render karo (diagrams/<name>.puml -> .utxt)
 plantuml diagram:
   #!/usr/bin/env bash
