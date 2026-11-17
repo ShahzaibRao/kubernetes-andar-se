@@ -28,8 +28,9 @@ start lesson:
   echo "Ab DECK-INDEX.md mein us lesson ki script kholo aur slides bharo."
 
 # Kisi lesson ka deck present karo (slides kholo)
+# cd zaroori hai: theme ../theme.json deck folder se relative hai
 present lesson:
-  @slides {{lesson}}/slides.md
+  @cd {{lesson}} && slides slides.md
 
 # PlantUML diagram ko ASCII mein render karo (diagrams/<name>.puml -> .utxt)
 plantuml diagram:
