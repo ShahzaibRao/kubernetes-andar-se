@@ -109,6 +109,7 @@ ls /opt/cni/bin | head
 
 ## Check Karo — podinfo Jawab De Raha Hai?
 > Agar iptables na hota to yahi command is error par fail hoti: "failed to call cni.Setup: plugin type=\"bridge\" failed (add): failed to locate iptables"
+> Agar podinfo pehle se chal raha ho to port 9898 busy hoga ("bind for :9898 failed: port is already allocated") — pehle `sudo nerdctl rm -f podinfo` chala lo, phir ye command
 ```sh
 sudo nerdctl run -d --name podinfo -p 9898:9898 ghcr.io/stefanprodan/podinfo:latest
 ```
