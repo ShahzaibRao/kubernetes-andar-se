@@ -6,6 +6,12 @@
 dekho). Purani `slides.md` files abhi repo mein hain, lekin nayi recording
 Design A se hogi. Lesson 03 ka `deck.md` pehla converted deck hai.
 
+**Design v2 (2026-11-18, Rao approved):** runner v2 — left pane pinned/static,
+har command ka output block session bhar mehfooz, neeche free terminal input
+(Tab ya `/` se apni command), progress bar sirf right pane mein, ANSI + `\r`
+sanitize, 80ms batched flush. v1 ke bugs (left pane gayab, output gayab,
+header scroll) fix hain — `presenter/README.md` mein "v1 bugs" section dekho.
+
 **Rule:** 1 lesson = 1 deck = 1 video (agar Rao module-wise chahe to 4 decks mein merge karna aasan hai — deck files ko `cat` karke jor do, `---` separator pehle se hai).
 
 **Status:** Lesson 01 aur 03 ke decks poore hain (test karne ke liye). Baaki decks `just start <lesson>` se banao, phir neeche wali script se bharo.
