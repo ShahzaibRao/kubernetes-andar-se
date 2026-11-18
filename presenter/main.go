@@ -50,11 +50,13 @@ import (
 // Deck format (deck.md):
 //
 //	# Lesson title            <- lesson title (first # line)
-//	## Slide title            <- new slide
-//	> quote line              <- HINT box
-//	- bullet                  <- bullet
-//	plain text                <- paragraph
+//	## Slide title            <- new slide (takeaway sentence, not a label)
+//	> quote line              <- HINT box: the say-line, WHY in one sentence
+//	! expect line             <- EXPECT box: what success looks like
+//	- bullet                  <- bullet (supports **bold**)
+//	plain text                <- paragraph (supports **bold**)
 //	```sh                     <- command block: every line = one command
+//	# comment line            <- annotation, shown dim above the next command
 //	curl ...
 //	```
 //	```text                   <- diagram: shown as-is, never executed
@@ -64,13 +66,14 @@ import (
 
 type Cmd struct {
 	Text    string
+	Note    string // # comment line above it in the deck (shown dim, not run)
 	Done    bool
 	HasExit bool
 	Exit    int
 }
 
 type Line struct {
-	Kind string // text, quote, bullet, diagram
+	Kind string // text, quote, expect, bullet, diagram
 	Text string
 }
 
@@ -95,6 +98,7 @@ func parseDeck(path string) (Deck, error) {
 
 	var cur *Slide
 	inFence := ""
+	pendingNote := ""
 	sc := bufio.NewScanner(f)
 	sc.Buffer(make([]byte, 1024*1024), 1024*1024)
 	for sc.Scan() {
@@ -104,14 +108,27 @@ func parseDeck(path string) (Deck, error) {
 		if inFence != "" {
 			if strings.HasPrefix(strings.TrimSpace(line), "```") {
 				inFence = ""
+				pendingNote = ""
 				continue
 			}
 			if cur == nil {
 				continue
 			}
 			if inFence == "sh" {
-				if t := strings.TrimSpace(line); t != "" && !strings.HasPrefix(t, "#") {
-					cur.Cmds = append(cur.Cmds, Cmd{Text: strings.TrimSpace(line)})
+				t := strings.TrimSpace(line)
+				switch {
+				case t == "":
+					// skip
+				case strings.HasPrefix(t, "#"):
+					note := strings.TrimSpace(strings.TrimPrefix(t, "#"))
+					if pendingNote == "" {
+						pendingNote = note
+					} else {
+						pendingNote += " / " + note
+					}
+				default:
+					cur.Cmds = append(cur.Cmds, Cmd{Text: strings.TrimSpace(line), Note: pendingNote})
+					pendingNote = ""
 				}
 			} else { // text diagram
 				cur.Lines = append(cur.Lines, Line{Kind: "diagram", Text: line})
@@ -138,6 +155,10 @@ func parseDeck(path string) (Deck, error) {
 		case strings.HasPrefix(trim, "> "):
 			if cur != nil {
 				cur.Lines = append(cur.Lines, Line{Kind: "quote", Text: strings.TrimSpace(strings.TrimPrefix(trim, "> "))})
+			}
+		case strings.HasPrefix(trim, "! "):
+			if cur != nil {
+				cur.Lines = append(cur.Lines, Line{Kind: "expect", Text: strings.TrimSpace(strings.TrimPrefix(trim, "! "))})
 			}
 		case strings.HasPrefix(trim, "- "):
 			if cur != nil {
@@ -659,6 +680,7 @@ func (m model) termRows() int {
 var (
 	titleStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("51")) // cyan
 	quoteStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("228"))           // yellow
+	expectStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("84")) // green
 	bulletStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("252"))
 	dimStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
 	selStyle    = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("46")) // green
@@ -668,6 +690,21 @@ var (
 	termStyle   = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("51"))
 	inputStyle  = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("46"))
 )
+
+// renderInline: **bold** segments ko bold karo, baqi base style mein.
+// wordwrap ANSI-aware hai, is liye style pehle lagana theek hai.
+func renderInline(s string, base lipgloss.Style) string {
+	parts := strings.Split(s, "**")
+	var sb strings.Builder
+	for i, p := range parts {
+		if i%2 == 1 {
+			sb.WriteString(base.Bold(true).Render(p))
+		} else {
+			sb.WriteString(base.Render(p))
+		}
+	}
+	return sb.String()
+}
 
 func truncate(s string, w int) string {
 	r := []rune(s)
@@ -710,13 +747,15 @@ func (m *model) renderLeft() string {
 	for _, ln := range s.Lines {
 		switch ln.Kind {
 		case "quote":
-			ww.Write([]byte("HINT › " + ln.Text + "\n"))
+			ww.Write([]byte(renderInline("HINT › "+ln.Text, quoteStyle) + "\n"))
+		case "expect":
+			ww.Write([]byte(renderInline("EXPECT › "+ln.Text, expectStyle) + "\n"))
 		case "bullet":
-			ww.Write([]byte("• " + ln.Text + "\n"))
+			ww.Write([]byte(renderInline("• "+ln.Text, bulletStyle) + "\n"))
 		case "diagram":
-			ww.Write([]byte(ln.Text + "\n"))
+			ww.Write([]byte(dimStyle.Render(ln.Text) + "\n"))
 		default:
-			ww.Write([]byte(ln.Text + "\n"))
+			ww.Write([]byte(renderInline(ln.Text, bulletStyle) + "\n"))
 		}
 	}
 	_ = ww.Close()
@@ -724,6 +763,9 @@ func (m *model) renderLeft() string {
 	if len(s.Cmds) > 0 {
 		sb.WriteString("\n" + dimStyle.Render("Commands — ↑↓ select · Enter run:") + "\n")
 		for i, c := range s.Cmds {
+			if c.Note != "" {
+				sb.WriteString(dimStyle.Render("  # "+truncate(c.Note, leftW-6)) + "\n")
+			}
 			text := truncate(c.Text, leftW-6)
 			runningHere := m.running && m.curBlock() != nil && m.curBlock().SlideIdx == m.slide && m.curBlock().CmdIdx == i
 			switch {
@@ -814,8 +856,8 @@ func (m model) View() string {
 	}
 	var b strings.Builder
 
-	// Header (static)
-	head := fmt.Sprintf("%s  ·  Slide %d/%d", m.deck.Title, m.slide+1, len(m.deck.Slides))
+	// Header (static) — series branding + lesson + slide number
+	head := fmt.Sprintf("Kubernetes Andar Se  ·  %s  ·  Slide %d/%d", m.deck.Title, m.slide+1, len(m.deck.Slides))
 	b.WriteString(headStyle.Render(truncate(head, m.width)) + "\n")
 	b.WriteString(dimStyle.Render(strings.Repeat("─", min(m.width, 120))) + "\n")
 
