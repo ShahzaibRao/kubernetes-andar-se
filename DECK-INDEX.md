@@ -12,6 +12,15 @@ har command ka output block session bhar mehfooz, neeche free terminal input
 sanitize, 80ms batched flush. v1 ke bugs (left pane gayab, output gayab,
 header scroll) fix hain — `presenter/README.md` mein "v1 bugs" section dekho.
 
+**Design v3 — loaded slides (2026-11-18, Rao ka feedback):** slides chal to
+gayin lekin professional nahi lag rahin — CNCF talks (Piotr Zaniewski,
+presenterm) jaisa feel nahi. Fix: title = takeaway sentence; har slide par
+say-line (`> `); EXPECT (`! `) — kamyabi kaisi dikhe gi; `# ` annotation —
+code khud samjhata hai; `**bold**`; title slide + closing slide; rhythm
+concept → command → proof. Lesson 03 ka deck v3 format mein rewrite hua
+(21 slides, 31 commands — commands same hain). Baaki 12 lessons bhi isi
+format mein convert hongi. Details `presenter/README.md` mein "v3" section.
+
 **Rule:** 1 lesson = 1 deck = 1 video (agar Rao module-wise chahe to 4 decks mein merge karna aasan hai — deck files ko `cat` karke jor do, `---` separator pehle se hai).
 
 **Status:** Lesson 01 aur 03 ke decks poore hain (test karne ke liye). Baaki decks `just start <lesson>` se banao, phir neeche wali script se bharo.
