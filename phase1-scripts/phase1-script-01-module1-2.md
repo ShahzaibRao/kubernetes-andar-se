@@ -167,6 +167,10 @@ sudo journalctl -u kubelet.service -f
 ```bash
 CONTAINERD_VERSION=2.2.1
 ```
+- **Pehle host tool: `iptables` install karo — YE STEP MISS MAT KARNA.** CNI bridge plugin ko NAT/masquerade ke liye `iptables` chahiye hota hai. Agar `iptables` na ho to `nerdctl run` container create karte waqt is error par fail hota hai: `failed to call cni.Setup: plugin type="bridge" failed (add): failed to locate iptables`. (2026-11-18 VM par verify hua: bina iptables ke `nerdctl run hello-world` fail, `apt install iptables` ke baad chal gaya, podinfo bhi Up hua aur :9898 par 200 mila.)
+```bash
+sudo apt install -y iptables
+```
 ```bash
 curl -fsSLO "https://github.com/containerd/containerd/releases/download/v${CONTAINERD_VERSION}/containerd-${CONTAINERD_VERSION}-linux-amd64.tar.gz"
 sudo tar xzvfC "containerd-${CONTAINERD_VERSION}-linux-amd64.tar.gz" /usr/local
