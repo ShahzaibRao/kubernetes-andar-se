@@ -26,7 +26,9 @@ curl -fsSLO https://github.com/containerd/containerd/releases/download/v2.2.1/co
 
 ## Step 1 — containerd Install Karo
 > Tarball se binary nikalo aur /usr/local/bin mein daalo
+> Pehle iptables install karo — CNI bridge plugin ko NAT ke liye iptables chahiye, warna `nerdctl run` CNI setup par fail hoga
 ```sh
+sudo apt install -y iptables
 tar xzvof containerd-2.2.1-linux-amd64.tar.gz
 sudo install -m 755 bin/* /usr/local/bin
 ```
@@ -106,6 +108,7 @@ ls /opt/cni/bin | head
 ```
 
 ## Check Karo — podinfo Jawab De Raha Hai?
+> Agar iptables na hota to yahi command is error par fail hoti: "failed to call cni.Setup: plugin type=\"bridge\" failed (add): failed to locate iptables"
 ```sh
 sudo nerdctl run -d --name podinfo -p 9898:9898 ghcr.io/stefanprodan/podinfo:latest
 ```
